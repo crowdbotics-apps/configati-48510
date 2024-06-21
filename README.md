@@ -71,6 +71,7 @@ This section will show any installed modules you add from the Storyboard Modules
 - [django-two-factor-authentication](backend/modules)
 - [django-s3-file-uploader](backend/modules)
 - [profile]()
+- [privacy-policy]()
 
 # Getting started: Frontend
 
