@@ -1,18 +1,15 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  KeyboardAvoidingView,
-  TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
-import { buttonStyles, textInputStyles, Color } from "./styles";
-import { HOME_SCREEN_NAME, validateEmail } from "./constants.js";
-import { useSelector, useDispatch } from "react-redux";
-import { loginRequest, signupRequest } from "../auth";
+import { OptionsContext } from "@options";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { unwrapResult } from "@reduxjs/toolkit";
+import React, { useContext, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { loginRequest, signupRequest } from "../auth";
+import { validateEmail } from "../constants";
+import { buttonStyles, Color, textInputStyles } from "./styles";
 
 // Custom Text Input
 export const TextInputField = (props) => (
@@ -32,54 +29,60 @@ export const TextInputField = (props) => (
 // Custom Button
 export const Button = (props) => (
   <TouchableOpacity onPress={props.onPress} disabled={props.loading}>
-    <View style={[buttonStyles.viewStyle, props.viewStyle]}>
-      {props.loading ? (
+    <View style={[buttonStyles.viewStyle, props.buttonStyle]}>
+      {props.loading
+        ? (
         <ActivityIndicator
           color={props.loadingColor ? props.loadingColor : Color.white}
           style={props.loadingStyle}
         />
-      ) : (
-        <Text style={[buttonStyles.textStyle, props.textStyle]}>
-          {props.title}
-        </Text>
-      )}
+          )
+        : (
+          <Text style={[buttonStyles.textStyle, props.buttonTextStyle]}>
+            {props.title}
+          </Text>
+          )}
     </View>
   </TouchableOpacity>
 );
 
 // Signup Component Tab
 
-export const SignupTab = () => {
+export const SignupTab = ({ navigation, route }) => {
+  const options = useContext(OptionsContext);
+  const { textInputStyle, buttonStyle, buttonTextStyle } = route.params;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [validationError, setValidationError] = useState({
     email: "",
-    password: "",
+    password: ""
   });
-
-  const { api } = useSelector((state) => state.login);
+  const { api } = useSelector((state) => state.Login);
   const dispatch = useDispatch();
 
   const onSignupPress = async () => {
     setValidationError({ email: "", password: "" });
-    if (!validateEmail.test(email))
+    if (!validateEmail.test(email)) {
       return setValidationError({
         email: "Please enter a valid email address.",
-        password: "",
+        password: ""
       });
+    }
 
-    if (!password)
+    if (!password) {
       return setValidationError({
         email: "",
-        password: "Please enter a valid password",
+        password: "Please enter a valid password"
       });
+    }
 
-    if (password !== confirmPassword)
+    if (password !== confirmPassword) {
       return setValidationError({
         email: "",
-        password: "Confirm password and password do not match.",
+        password: "Confirm password and password do not match."
       });
+    }
     dispatch(signupRequest({ email, password }))
       .then(unwrapResult)
       .then(() => {
@@ -101,6 +104,7 @@ export const SignupTab = () => {
           onChangeText={(value) => setEmail(value)}
           value={email}
           error={validationError.email}
+          textInputStyle={textInputStyle}
         />
         <TextInputField
           label="Password"
@@ -109,6 +113,7 @@ export const SignupTab = () => {
           onChangeText={(value) => setPassword(value)}
           value={password}
           error={validationError.password}
+          textInputStyle={textInputStyle}
         />
         <TextInputField
           label="Confirm Password"
@@ -116,12 +121,15 @@ export const SignupTab = () => {
           secureTextEntry={true}
           onChangeText={(value) => setConfirmPassword(value)}
           value={confirmPassword}
+          textInputStyle={textInputStyle}
         />
       </View>
       <Button
-        title="Sign Up"
+        title={options.SignUpButtonText}
         loading={api.loading === "pending"}
         onPress={onSignupPress}
+        buttonStyle={buttonStyle}
+        buttonTextStyle={buttonTextStyle}
       />
       {!!api.error && (
         <Text style={textInputStyles.error}>{api.error.message}</Text>
@@ -130,34 +138,41 @@ export const SignupTab = () => {
   );
 };
 
-export const SignInTab = ({ navigation }) => {
+export const SignInTab = ({ navigation, route }) => {
+  const options = useContext(OptionsContext);
+  const { textInputStyle, buttonStyle, buttonTextStyle } = route.params;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [validationError, setValidationError] = useState({
     email: "",
-    password: "",
+    password: ""
   });
 
-  const { api } = useSelector((state) => state.login);
+  const { api } = useSelector((state) => state.Login);
   const dispatch = useDispatch();
 
   const onSigninPress = async () => {
-    if (!validateEmail.test(email))
+    if (!validateEmail.test(email)) {
       return setValidationError({
         email: "Please enter a valid email address.",
-        password: "",
+        password: ""
       });
+    }
 
-    if (!password)
+    if (!password) {
       return setValidationError({
         email: "",
-        password: "Please enter a valid password",
+        password: "Please enter a valid password"
       });
+    }
 
     dispatch(loginRequest({ username: email, password }))
       .then(unwrapResult)
-      .then((res) => {
-        if (res.token) navigation.navigate(HOME_SCREEN_NAME);
+      .then(async (res) => {
+        if (res.token) {
+          await AsyncStorage.setItem("access_token", res.token);
+          navigation.navigate(options.HOME_SCREEN_NAME);
+        }
       })
       .catch((err) => console.log(err.message));
   };
@@ -172,6 +187,7 @@ export const SignInTab = ({ navigation }) => {
           onChangeText={(value) => setEmail(value)}
           value={email}
           error={validationError.email}
+          textInputStyle={textInputStyle}
         />
         <TextInputField
           label="Password"
@@ -180,13 +196,16 @@ export const SignInTab = ({ navigation }) => {
           onChangeText={(value) => setPassword(value)}
           value={password}
           error={validationError.password}
+          textInputStyle={textInputStyle}
         />
       </View>
 
       <Button
-        title="Login"
+        title={options.SignInButtonText}
         loading={api.loading === "pending"}
         onPress={onSigninPress}
+        buttonStyle={buttonStyle}
+        buttonTextStyle={buttonTextStyle}
       />
       {!!api.error && (
         <Text style={textInputStyles.error}>{api.error.message}</Text>
@@ -195,7 +214,7 @@ export const SignInTab = ({ navigation }) => {
         style={{
           justifyContent: "center",
           alignItems: "center",
-          marginTop: 10,
+          marginTop: 10
         }}
       >
         <TouchableOpacity
