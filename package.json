@@ -23,6 +23,7 @@
     "@modules/profile": "file:./modules/profile",
     "@modules/qr-code": "file:./modules/qr-code/",
     "@modules/splash": "file:./modules/splash/",
+    "@modules/terms-and-conditions": "file:./modules/terms-and-conditions",
     "@modules/terms-and-conditions-webview": "file:./modules/terms-and-conditions-webview/",
     "@modules/user-profile": "file:./modules/user-profile/",
     "@react-native-async-storage/async-storage": "1.17.9",
