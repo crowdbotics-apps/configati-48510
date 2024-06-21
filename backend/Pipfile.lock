@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "927880ce0f0ceb493935e662af24dc92d3dce4a3f1bb8fb0120b25f7990ec4aa"
+            "sha256": "91c4b0d15ef0b53417431db05a3f6e58897a18cf0452c9fe3e1135c861c418c2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -197,6 +197,10 @@
         "cb-django-core": {
             "editable": true,
             "path": "./modules/django_core"
+        },
+        "cb-django-s3-file-uploader": {
+            "editable": true,
+            "path": "./modules/django_s3_file_uploader"
         },
         "cb-django-two-factor-authentication": {
             "editable": true,

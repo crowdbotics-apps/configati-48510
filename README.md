@@ -69,6 +69,7 @@ This section will show any installed modules you add from the Storyboard Modules
 - [react-native-qr-code](modules/qr-code)
 - [django-core](backend/modules)
 - [django-two-factor-authentication](backend/modules)
+- [django-s3-file-uploader](backend/modules)
 
 # Getting started: Frontend
 
